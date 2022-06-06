@@ -6,28 +6,32 @@ import json
 
 # Create your views here.
 def index(request:HttpRequest):
-    
-    objects = models3d.objects.all()
-    print(objects[0].name)
-    returnObj = [{"name":object.name, "id":object.id, "url":object.content.url} for object in objects]
-    return HttpResponse(json.dumps(returnObj))
+    try:
+        objects = models3d.objects.all()
+        returnObj = [{"name":object.name, "id":object.id, "url":object.content.url} for object in objects]
+        return HttpResponse(json.dumps(returnObj))
+    except:
+        return HttpResponse("some error occured")
 
 def downLoadFile(request:HttpRequest, id):
-    object =models3d.objects.get(pk = id)
-    print("./.."+object.content.url,object.content)
-    file = open("./.."+object.content.url,'rb')
-    return HttpResponse(FileWrapper(file))
-        
+    try:
+        object =models3d.objects.get(pk = id)
+        file = open("./.."+object.content.url,'rb')
+        return HttpResponse(FileWrapper(file))
+    except:
+        return HttpResponse("some error occured")        
     
 @csrf_exempt
 def uploadFile(request: HttpRequest):
-    if request.method == "POST":
-        data = request.POST
-        files = request.FILES
-        file = files.get("file")
-        
-        uploaded = models3d.objects.create(name = file.name, content = file)
-        uploaded.save()
-        data = request.FILES
-        print(uploaded)
-        return HttpResponse("success")
+    try:
+        if request.method == "POST":
+            data = request.POST
+            files = request.FILES
+            file = files.get("file")
+            
+            uploaded = models3d.objects.create(name = file.name, content = file)
+            uploaded.save()
+            data = request.FILES
+            return HttpResponse("success")
+    except:
+        return HttpResponse("some error occured")
